@@ -6,7 +6,7 @@ Forbidden Rewrite:
 
 
 Custom 404 Rewrite:
-`ErrorDocument 404 /index.php?error=404`
+`ErrorDocument 404 /index.php?error=404` <br>
 `RewriteRule xmlrpc\.php$ - [R=404,L]`
 
 If your wordpress is in a subdirectory: ErrorDocument 404 /wordpress/index.php?error=404
