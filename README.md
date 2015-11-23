@@ -5,7 +5,7 @@ Forbidden Rewrite:
 `RewriteRule xmlrpc\.php$ - [F,L]`
 
 
-Custom 404 Rewrite:
+Custom 404 Rewrite:<br>
 `ErrorDocument 404 /index.php?error=404` <br>
 `RewriteRule xmlrpc\.php$ - [R=404,L]`
 
