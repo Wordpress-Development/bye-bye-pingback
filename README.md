@@ -1,16 +1,5 @@
-# bye-bye-pingback
-Completely disable Pingback / XML RCP in Wordpress
+# BYE BYE PINGBACK
 
-Forbidden Rewrite:
-`RewriteRule xmlrpc\.php$ - [F,L]`
+Banish wordpress pingback/xmlrcp once and for all!
 
-
-Custom 404 Rewrite:<br>
-`ErrorDocument 404 /index.php?error=404` <br>
-`RewriteRule xmlrpc\.php$ - [R=404,L]`
-
-If your wordpress is in a subdirectory: ErrorDocument 404 /wordpress/index.php?error=404
-
-301 Redirect to homepage:
-`RewriteRule ^xmlrpc\.php$ index.php [R=301]`
 
