@@ -8,17 +8,23 @@ Author:             bryanwillis
 Author URI:         https://github.com/bryanwillis/
 */
 
-defined( 'WPINC' ) or die;
+// If this file is called directly, abort.
+if ( ! defined( 'WPINC' ) ) {
+    die;
+}
 
 register_activation_hook( __FILE__, 'block_pingback_xmlrcp_activation_hook' );
 function block_pingback_xmlrcp_activation_hook() {
-    add_filter('mod_rewrite_rules', 'my_htaccess_contents');
+   
 }
 
-// Htaccess add on plugin activation hook
+/**
+ * Htaccess directive block xmlrcp for extra security.
+ * This runs when permalink structure is updated. Delete directive manually for added security on accidental plugin deactivation.
+ */
 function xmlrcp_blocked_htaccess( $rules ) {
-$my_content = <<<EOD
-\n # BEGIN Pingback Block
+$xmlrcp_rule = <<<EOD
+\n# BEGIN Pingback Block
 # Block xmlrpc.php access
 <files xmlrpc.php>
     order allow,deny
@@ -26,12 +32,13 @@ $my_content = <<<EOD
 </files>
 # END Pingback Block\n
 EOD;
-    return $my_content . $rules;
+    return $xmlrcp_rule . $rules;
 }
+add_filter('mod_rewrite_rules', 'xmlrcp_blocked_htaccess');
 
 
 
-// Remove Pingback html from <head>
+// Remove pingback html from frontend
 if (!is_admin()) {      
     function link_rel_buffer_callback($buffer) {
         $buffer = preg_replace('/(<link.*?rel=("|\')pingback("|\').*?href=("|\')(.*?)("|\')(.*?)?\/?>|<link.*?href=("|\')(.*?)("|\').*?rel=("|\')pingback("|\')(.*?)?\/?>)/i', '', $buffer);
@@ -57,6 +64,7 @@ add_filter( 'pre_option_enable_xmlrpc', '__return_zero' );
 function remove_pingback_methods( $methods ) {
    unset( $methods['pingback.ping'] );
    unset( $methods['pingback.extensions.getPingbacks'] );
+   unset( $methods['wp.getUsersBlogs'] );
    return $methods;
 }
 add_filter( 'xmlrpc_methods', 'remove_pingback_methods' );
