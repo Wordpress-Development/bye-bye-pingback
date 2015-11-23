@@ -13,14 +13,30 @@ if ( ! defined( 'WPINC' ) ) {
     die;
 }
 
-register_activation_hook( __FILE__, 'block_pingback_xmlrcp_activation_hook' );
-function block_pingback_xmlrcp_activation_hook() {
-   
+
+add_filter('mod_rewrite_rules', 'noxmlrpc_mod_rewrite_rules');
+function noxmlrpc_mod_rewrite_rules($rules) {
+  $insert = "RewriteRule xmlrpc\.php$ - [F,L]";
+  $rules = preg_replace('!RewriteRule!', "$insert\n\nRewriteRule", $rules, 1);
+  return $rules;
 }
+
+register_activation_hook(__FILE__, 'noxmlrpc_htaccess_activate');
+function noxmlrpc_htaccess_activate() {
+  flush_rewrite_rules(true);
+}
+
+register_deactivation_hook(__FILE__, 'noxmlrpc_htaccess_deactivate');
+function noxmlrpc_htaccess_deactivate() {
+  remove_filter('mod_rewrite_rules', 'noxmlrpc_mod_rewrite_rules');
+  flush_rewrite_rules(true);
+}
+
 
 /**
  * Htaccess directive block xmlrcp for extra security.
  * This runs when permalink structure is updated. Delete directive manually for added security on accidental plugin deactivation.
+ * Useage : add_filter('mod_rewrite_rules', 'xmlrcp_blocked_htaccess'); //add_action( 'wp_loaded', 'PluginA_rewrite_rules' );
  */
 function xmlrcp_blocked_htaccess( $rules ) {
 $xmlrcp_rule = <<<EOD
@@ -34,16 +50,15 @@ $xmlrcp_rule = <<<EOD
 EOD;
     return $xmlrcp_rule . $rules;
 }
-add_filter('mod_rewrite_rules', 'xmlrcp_blocked_htaccess');
 
 
-// Remove rsd_link from filters (<link rel="EditURI" />).
+// Remove rsd_link from filters (link rel="EditURI")
 add_action('wp', function(){
     remove_action('wp_head', 'rsd_link');
 }, 9);
 
 
-// Remove pingback html from frontend
+// Remove pingback from head (link rel="pingback")
 if (!is_admin()) {      
     function link_rel_buffer_callback($buffer) {
         $buffer = preg_replace('/(<link.*?rel=("|\')pingback("|\').*?href=("|\')(.*?)("|\')(.*?)?\/?>|<link.*?href=("|\')(.*?)("|\').*?rel=("|\')pingback("|\')(.*?)?\/?>)/i', '', $buffer);
@@ -61,38 +76,54 @@ if (!is_admin()) {
 }
 
 
+// Hijack pingback_url for get_bloginfo (<link rel="pingback" />).
+add_filter('bloginfo_url', function($output, $property){
+    return ($property == 'pingback_url') ? null : $output;
+}, 11, 2);
+
+
 // Disable xmlrcp/pingback
 add_filter( 'xmlrpc_enabled', '__return_false' );
 add_filter( 'pre_update_option_enable_xmlrpc', '__return_false' );
 add_filter( 'pre_option_enable_xmlrpc', '__return_zero' );
 
-function remove_pingback_methods( $methods ) {
-   unset( $methods['pingback.ping'] );
-   unset( $methods['pingback.extensions.getPingbacks'] );
-   unset( $methods['wp.getUsersBlogs'] );
-   return $methods;
-}
-add_filter( 'xmlrpc_methods', 'remove_pingback_methods' );
+
+add_filter( 'rewrite_rules_array', function( $rules ) {
+	foreach( $rules as $rule => $rewrite ) {
+		if( preg_match( '/trackback\/\?\$$/i', $rule ) ) {
+			unset( $rules[$rule] );
+		}
+	}
+	return $rules;
+});
 
 
-// Stop pingback headers from being sent
-function filter_wp_headers_unset_pingback( $headers ) {
-    if( isset( $headers['X-Pingback'] ) ) {
-        unset( $headers['X-Pingback'] );
+// Disable X-Pingback HTTP Header.
+add_filter('wp_headers', function($headers, $wp_query){
+    if(isset($headers['X-Pingback'])){
+        unset($headers['X-Pingback']);
     }
     return $headers;
-}
-add_filter( 'wp_headers', 'filter_wp_headers_unset_pingback', 10, 1 );
+}, 11, 2);
 
 
-//Block access to pingback page
-function xmlrpc_pingbacks_not_allowed_redirect( $action ) {
-    if( 'pingback.ping' === $action ) {
-        wp_die( 
-            'Pingbacks are not supported', 
-            'Not Allowed!', 
-            array( 'response' => 403 )
-        );
-    }
+add_filter( 'xmlrpc_methods', function($methods){
+    unset( $methods['pingback.ping'] );
+    unset( $methods['pingback.extensions.getPingbacks'] );
+    unset( $methods['wp.getUsersBlogs'] );
+    unset( $methods['system.multicall'] );
+    unset( $methods['system.listMethods'] );
+	unset( $methods['system.getCapabilities'] );
+    return $methods;
 }
-add_action( 'xmlrpc_call', 'xmlrpc_pingbacks_not_allowed_redirect' );
+
+
+// Just disable pingback.ping functionality while leaving XMLRPC intact?
+add_action('xmlrpc_call', function($method){
+    if($method != 'pingback.ping') return;
+    wp_die(
+        'Pingback functionality is disabled on this Blog.',
+        'Pingback Disabled!',
+        array('response' => 403)
+    );
+});
