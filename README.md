@@ -23,7 +23,6 @@ However, be aware by disabling XML-RPC, you may risk breaking some popular plugi
 https://blog.sucuri.net/2015/10/brute-force-amplification-attacks-against-wordpress-xmlrpc.html
 
 
-    UPDATE wp_posts SET ping_status="closed";
 
 
 
@@ -39,3 +38,20 @@ https://blog.sucuri.net/2015/10/brute-force-amplification-attacks-against-wordpr
     RewriteRule ^xmlrpc.php$ "http://0.0.0.0/" [R=301,L]
 
 
+
+    UPDATE wp_posts SET ping_status="closed";
+
+
+```php
+function published_to_pending($post_id) {
+  global $post;
+  if (!is_object($post)) {
+    return;
+  }
+    $posts = array(
+        'ID'             => $post_id,
+        'ping_status'    => 'closed'
+    );
+  }
+}
+```
