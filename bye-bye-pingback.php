@@ -13,17 +13,14 @@ if ( ! defined( 'WPINC' ) ) {
     die;
 }
 
-
-add_filter('mod_rewrite_rules', 'noxmlrpc_mod_rewrite_rules');
+/**
+ * Htaccess directive block xmlrcp for extra security.
+ * 
+ * 
+ */
+add_filter('mod_rewrite_rules', 'noxmlrpc_mod_rewrite_rules'); // should we put this inside wp_loaded or activation hook
 function noxmlrpc_mod_rewrite_rules($rules) {
   $insert = "RewriteRule xmlrpc\.php$ - [F,L]";
-  $rules = preg_replace('!RewriteRule!', "$insert\n\nRewriteRule", $rules, 1);
-  return $rules;
-}
-
-add_filter('mod_rewrite_rules', 'noxmlrpc_mod_rewrite_rules');
-function noxmlrpc_mod_rewrite_rules($rules) {
-  $insert = "RewriteRule xmlrpc\.php$ - [R=301,L]";
   $rules = preg_replace('!RewriteRule!', "$insert\n\nRewriteRule", $rules, 1);
   return $rules;
 }
@@ -40,26 +37,7 @@ function noxmlrpc_htaccess_deactivate() {
 }
 
 
-/**
- * Htaccess directive block xmlrcp for extra security.
- * This runs when permalink structure is updated. Delete directive manually for added security on accidental plugin deactivation.
- * Useage : add_filter('mod_rewrite_rules', 'xmlrcp_blocked_htaccess'); //add_action( 'wp_loaded', 'PluginA_rewrite_rules' );
- */
-function xmlrcp_blocked_htaccess( $rules ) {
-$xmlrcp_rule = <<<EOD
-\n# BEGIN Pingback Block
-# Block xmlrpc.php access
-<files xmlrpc.php>
-    order allow,deny
-    deny from all
-</files>
-# END Pingback Block\n
-EOD;
-    return $xmlrcp_rule . $rules;
-}
-
-
-// Remove rsd_link from filters (link rel="EditURI")
+// Remove rsd_link from filters- link rel="EditURI"
 add_action('wp', function(){
     remove_action('wp_head', 'rsd_link');
 }, 9);
@@ -129,8 +107,8 @@ add_filter( 'xmlrpc_methods', function($methods){
 add_action('xmlrpc_call', function($method){
     if($method != 'pingback.ping') return;
     wp_die(
-        'Pingback functionality is disabled on this Blog.',
-        'Pingback Disabled!',
+        'This site does not have pingback.',
+        'Pingback not Enabled!',
         array('response' => 403)
     );
 });
