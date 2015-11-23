@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name:        BYE BYE Pingback
-Plugin URI:         http://wordpress.stackexchange.com/posts/158992/
+Plugin URI:         https://github.com/Wordpress-Development/bye-bye-pingback/
 Description:        Banishment of wordpress pingback
 Version:            1.0.0
 Author:             bryanwillis
