@@ -97,7 +97,7 @@ add_filter('wp_headers', function($headers, $wp_query){
 add_filter( 'xmlrpc_methods', function($methods){
     unset( $methods['pingback.ping'] );
     unset( $methods['pingback.extensions.getPingbacks'] );
-    unset( $methods['wp.getUsersBlogs'] );
+    unset( $methods['wp.getUsersBlogs'] ); // Block brute force discovery of existing users
     unset( $methods['system.multicall'] );
     unset( $methods['system.listMethods'] );
     unset( $methods['system.getCapabilities'] );
