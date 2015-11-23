@@ -1,5 +1,9 @@
 # BYE-BYE PINGBACK!!!
 
+
+Based off this question:
+http://wordpress.stackexchange.com/questions/158700/how-to-remove-pingback-from-head
+
 Banish WordPress pingback/XML-RPC once and for all....
 
     <link rel="pingback" href="<?php bloginfo( 'pingback_url' ); ?>" />
