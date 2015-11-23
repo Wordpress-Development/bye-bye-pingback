@@ -21,6 +21,13 @@ function noxmlrpc_mod_rewrite_rules($rules) {
   return $rules;
 }
 
+add_filter('mod_rewrite_rules', 'noxmlrpc_mod_rewrite_rules');
+function noxmlrpc_mod_rewrite_rules($rules) {
+  $insert = "RewriteRule xmlrpc\.php$ - [R=301,L]";
+  $rules = preg_replace('!RewriteRule!', "$insert\n\nRewriteRule", $rules, 1);
+  return $rules;
+}
+
 register_activation_hook(__FILE__, 'noxmlrpc_htaccess_activate');
 function noxmlrpc_htaccess_activate() {
   flush_rewrite_rules(true);
