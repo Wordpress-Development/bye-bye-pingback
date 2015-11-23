@@ -15,9 +15,10 @@ if ( ! defined( 'WPINC' ) ) {
 
 /**
  * Htaccess directive block xmlrcp for extra security.
- * Here are some rewrite examples. If you want to use a custom 404 make sure your server is finding the right page by adding this 'ErrorDocument 404 /index.php?error=404'
- *  404 - RewriteRule xmlrpc\.php$ - [R=404,L]
- *  301 - RewriteRule ^xmlrpc\.php$ index.php [R=301]
+ * Here are some rewrite examples:
+ *   404 - RewriteRule xmlrpc\.php$ - [R=404,L]
+ *   301 - RewriteRule ^xmlrpc\.php$ index.php [R=301]
+ * If you want custom 404 make sure your server is finding it by also adding this 'ErrorDocument 404 /index.php?error=404' or 'ErrorDocument 404 /wordpress/index.php?error=404' for sites in subdirectory.
  */ 
 add_filter('mod_rewrite_rules', 'noxmlrpc_mod_rewrite_rules'); // should we put this inside wp_loaded or activation hook
 function noxmlrpc_mod_rewrite_rules($rules) {
