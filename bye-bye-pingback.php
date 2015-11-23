@@ -37,6 +37,11 @@ EOD;
 add_filter('mod_rewrite_rules', 'xmlrcp_blocked_htaccess');
 
 
+// Remove rsd_link from filters (<link rel="EditURI" />).
+add_action('wp', function(){
+    remove_action('wp_head', 'rsd_link');
+}, 9);
+
 
 // Remove pingback html from frontend
 if (!is_admin()) {      
