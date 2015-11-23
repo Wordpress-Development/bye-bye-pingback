@@ -24,18 +24,34 @@ https://blog.sucuri.net/2015/10/brute-force-amplification-attacks-against-wordpr
 
 
 
-
+Rewrite Examples
 
     <Files xmlrpc.php>
     Order Deny,Allow
     Deny from all
-    </Files> 
-
+    </Files>
+    
+    <Files xmlrpc.php>
+    Order Deny,Allow
+    Deny from all
+    Allow from 192.0.64.0/18
+    Satisfy All
+    ErrorDocument 403 http://127.0.0.1/
+    </Files>
+    
+    
     <IfModule mod_alias.c>
     RedirectMatch 403 (?i)/xmlrpc.php
     </IfModule>
 
-    RewriteRule ^xmlrpc.php$ "http://0.0.0.0/" [R=301,L]
+
+    301 - RewriteRule ^xmlrpc.php$ "http://0.0.0.0/" [R=301,L]
+    301 - RewriteRule ^xmlrpc\.php$ index.php [R=301]
+    403 - RewriteRule xmlrpc\.php$ - [F,L]
+    404 - RewriteRule xmlrpc\.php$ - [R=404,L] 
+          ErrorDocument 404 /index.php?error=404
+
+
 
 
 
