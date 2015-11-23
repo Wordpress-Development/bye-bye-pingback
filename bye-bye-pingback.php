@@ -102,7 +102,7 @@ add_filter( 'xmlrpc_methods', function($methods){
     unset( $methods['system.listMethods'] );
     unset( $methods['system.getCapabilities'] );
     return $methods;
-}
+});
 
 
 // Just disable pingback.ping functionality while leaving XMLRPC intact?
