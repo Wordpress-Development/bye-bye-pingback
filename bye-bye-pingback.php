@@ -39,7 +39,6 @@ function noxmlrpc_htaccess_deactivate() {
 }
 
 
-
 add_action('wp', function(){
     // Remove rsd_link from filters- link rel="EditURI"
     remove_action('wp_head', 'rsd_link');
@@ -99,7 +98,10 @@ add_filter('wp_headers', function($headers, $wp_query){
 }, 11, 2);
 
 
-
+/*----------------------------------------------------------------------------*
+ * XML-RCP Methods
+ *----------------------------------------------------------------------------*/
+ 
 // https://github.com/WordPress/WordPress/blob/77e365efbf2e499e2ed11d29c101ea466cf1ceed/wp-includes/class-wp-xmlrpc-server.php#L170
 add_filter( 'xmlrpc_methods', function($methods){
     unset( $methods['pingback.ping'] );
