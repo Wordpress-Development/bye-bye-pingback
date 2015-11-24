@@ -39,9 +39,13 @@ function noxmlrpc_htaccess_deactivate() {
 }
 
 
-// Remove rsd_link from filters- link rel="EditURI"
+
 add_action('wp', function(){
+    // Remove rsd_link from filters- link rel="EditURI"
     remove_action('wp_head', 'rsd_link');
+    // Windows Live Writer
+    // <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="/wp-includes/wlwmanifest.xml" /> 
+    remove_action('wp_head', 'wlwmanifest_link');
 }, 9);
 
 
@@ -69,10 +73,11 @@ add_filter('bloginfo_url', function($output, $property){
 }, 11, 2);
 
 
-// Disable xmlrcp/pingback
-add_filter( 'xmlrpc_enabled', '__return_false' );
+add_filter( 'xmlrpc_enabled', '__return_false' ); // https://github.com/WordPress/WordPress/blob/77e365efbf2e499e2ed11d29c101ea466cf1ceed/wp-includes/class-wp-xmlrpc-server.php#L255
 add_filter( 'pre_update_option_enable_xmlrpc', '__return_false' );
-add_filter( 'pre_option_enable_xmlrpc', '__return_zero' );
+add_filter( 'pre_option_enable_xmlrpc', '__return_zero' ); // https://github.com/WordPress/WordPress/blob/77e365efbf2e499e2ed11d29c101ea466cf1ceed/wp-includes/class-wp-xmlrpc-server.php#L241
+add_filter( 'pings_open', '__return_false', 10, 2 );
+
 
 
 add_filter( 'rewrite_rules_array', function( $rules ) {
@@ -94,6 +99,8 @@ add_filter('wp_headers', function($headers, $wp_query){
 }, 11, 2);
 
 
+
+// https://github.com/WordPress/WordPress/blob/77e365efbf2e499e2ed11d29c101ea466cf1ceed/wp-includes/class-wp-xmlrpc-server.php#L170
 add_filter( 'xmlrpc_methods', function($methods){
     unset( $methods['pingback.ping'] );
     unset( $methods['pingback.extensions.getPingbacks'] );
